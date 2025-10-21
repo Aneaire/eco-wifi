@@ -39,7 +39,7 @@ The EcoWiFi system is an IoT solution that provides 15 minutes of WiFi internet 
   - 4GB LPDDR4 RAM
   - Gigabit Ethernet
   - WiFi and Bluetooth
-- **Role**: Runs the main application, manages database, handles user authentication
+- **Role**: Runs Bun/Hono web server, manages SQLite database, handles user authentication
 
 #### 2. Mikrotik Router (hAP ac² or similar)
 - **Purpose**: Network management and captive portal
@@ -95,16 +95,21 @@ The EcoWiFi system is an IoT solution that provides 15 minutes of WiFi internet 
 - **ESP32**: Arduino IDE or ESP-IDF
 
 ### Development Tools
-- **Node.js**: v16+ for backend services
-- **Python**: v3.8+ for sensor scripts
-- **MySQL/MariaDB**: For user session management
-- **Nginx**: Web server for captive portal
+- **Bun**: Latest runtime for JavaScript/TypeScript
+- **Hono**: Fast web framework for API development
+- **SQLite**: Embedded database for session management
+- **TypeScript**: For type-safe development
 - **Git**: Version control
 
 ### Libraries and Dependencies
 ```bash
-# Node.js dependencies
-npm install express mysql2 socket.io node-cron
+# Install Bun
+curl -fsSL https://bun.sh/install | bash
+
+# Project dependencies
+bun init
+bun add hono better-sqlite3 @hono/node-server
+bun add -d @types/node typescript
 
 # Python dependencies (ESP32)
 pip install machine network urequests
@@ -226,26 +231,35 @@ network:
         addresses: [8.8.8.8, 8.8.4.4]
 ```
 
-#### Database Setup
+#### SQLite Database Setup
 ```sql
-CREATE DATABASE ecowifi;
-USE ecowifi;
+-- Create database file and tables
+-- File: ecowifi.db
 
 CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    mac_address VARCHAR(17) UNIQUE,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    mac_address TEXT UNIQUE NOT NULL,
     session_start DATETIME,
     session_end DATETIME,
-    bottles_deposited INT DEFAULT 0,
-    status ENUM('active', 'expired') DEFAULT 'active'
+    bottles_deposited INTEGER DEFAULT 0,
+    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'expired'))
 );
 
 CREATE TABLE bottle_logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    weight DECIMAL(5,2),
-    size DECIMAL(5,2),
-    material_confirmed BOOLEAN DEFAULT FALSE
+    weight REAL,
+    size REAL,
+    material_confirmed BOOLEAN DEFAULT FALSE,
+    mac_address TEXT
+);
+
+CREATE TABLE system_stats (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date DATE UNIQUE NOT NULL,
+    total_bottles INTEGER DEFAULT 0,
+    total_sessions INTEGER DEFAULT 0,
+    co2_saved REAL DEFAULT 0.0
 );
 ```
 
@@ -253,67 +267,480 @@ CREATE TABLE bottle_logs (
 
 ## Software Setup
 
-### Backend Application (Node.js)
+### Backend Application (Bun + Hono + SQLite)
 
-#### Main Server File (server.js)
-```javascript
-const express = require('express');
-const mysql = require('mysql2');
-const http = require('http');
-const socketIo = require('socket.io');
+#### Project Setup
+```bash
+# Initialize project
+bun init ecowifi-server
+cd ecowifi-server
 
-const app = express();
-const server = http.createServer(app);
-const io = socketIo(server);
+# Install dependencies
+bun add hono better-sqlite3 @hono/node-server
+bun add -d @types/node typescript
 
-// Database connection
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'ecowifi',
-    password: 'password',
-    database: 'ecowifi'
-});
+# Create project structure
+mkdir src
+mkdir src/routes
+mkdir src/models
+mkdir src/middleware
+```
+
+#### Main Server File (src/index.ts)
+```typescript
+import { Hono } from 'hono';
+import { serve } from '@hono/node-server';
+import { serveStatic } from '@hono/node-server/serve-static';
+import { cors } from 'hono/cors';
+import Database from 'better-sqlite3';
+import { bottleRoutes } from './routes/bottle';
+import { userRoutes } from './routes/user';
+import { statsRoutes } from './routes/stats';
+
+const app = new Hono();
+
+// Initialize SQLite database
+const db = new Database('ecowifi.db');
+
+// Initialize database tables
+db.exec(`
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    mac_address TEXT UNIQUE NOT NULL,
+    session_start DATETIME,
+    session_end DATETIME,
+    bottles_deposited INTEGER DEFAULT 0,
+    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'expired'))
+  );
+
+  CREATE TABLE IF NOT EXISTS bottle_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    weight REAL,
+    size REAL,
+    material_confirmed BOOLEAN DEFAULT FALSE,
+    mac_address TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS system_stats (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date DATE UNIQUE NOT NULL,
+    total_bottles INTEGER DEFAULT 0,
+    total_sessions INTEGER DEFAULT 0,
+    co2_saved REAL DEFAULT 0.0
+  );
+`);
 
 // Middleware
-app.use(express.static('public'));
-app.use(express.json());
+app.use('/*', cors());
+app.use('/static/*', serveStatic({ root: './public' }));
 
-// API Routes
-app.post('/api/bottle-deposit', (req, res) => {
-    const { macAddress, weight, size } = req.body;
+// Routes
+app.route('/api/bottle', bottleRoutes);
+app.route('/api/user', userRoutes);
+app.route('/api/stats', statsRoutes);
+
+// Serve captive portal
+app.get('/', (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>EcoWiFi Access</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+      </head>
+      <body class="bg-gradient-to-br from-green-50 to-blue-50 min-h-screen">
+        <div class="container mx-auto px-4 py-8">
+          <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8">
+            <div class="text-center mb-6">
+              <i class="fas fa-recycle text-6xl text-green-500 mb-4"></i>
+              <h1 class="text-2xl font-bold text-gray-800">EcoWiFi Access</h1>
+              <p class="text-gray-600">Insert a plastic bottle for 15 minutes free WiFi</p>
+            </div>
+            <div id="status" class="bg-yellow-100 border-2 border-yellow-300 rounded-lg p-4 mb-6">
+              <div class="flex items-center">
+                <i class="fas fa-info-circle text-yellow-600 mr-2"></i>
+                <span id="status-text">Waiting for bottle...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <script src="/static/js/portal.js"></script>
+      </body>
+    </html>
+  `);
+});
+
+// WebSocket for real-time updates
+app.get('/ws', async (c) => {
+  return c.text('WebSocket endpoint');
+});
+
+const port = 3000;
+console.log(`EcoWiFi server is running on port ${port}`);
+
+serve({
+  fetch: app.fetch,
+  port,
+});
+
+export default app;
+```
+
+#### Bottle Routes (src/routes/bottle.ts)
+```typescript
+import { Hono } from 'hono';
+import Database from 'better-sqlite3';
+
+const db = new Database('ecowifi.db');
+const app = new Hono();
+
+// Record bottle deposit and grant WiFi access
+app.post('/deposit', async (c) => {
+  try {
+    const { macAddress, weight, size } = await c.req.json();
+    
+    // Validate bottle
+    if (weight < 10 || size < 5) {
+      return c.json({ error: 'Invalid bottle detected' }, 400);
+    }
     
     // Log bottle deposit
-    db.query(
-        'INSERT INTO bottle_logs (weight, size) VALUES (?, ?)',
-        [weight, size],
-        (err, result) => {
-            if (err) return res.status(500).json({ error: err.message });
-            
-            // Grant WiFi access via Mikrotik API
-            grantWifiAccess(macAddress);
-            
-            res.json({ success: true, sessionId: result.insertId });
-        }
-    );
+    const stmt = db.prepare(`
+      INSERT INTO bottle_logs (weight, size, mac_address)
+      VALUES (?, ?, ?)
+    `);
+    
+    const result = stmt.run(weight, size, macAddress);
+    
+    // Update or create user session
+    const userStmt = db.prepare(`
+      INSERT OR REPLACE INTO users (mac_address, session_start, session_end, bottles_deposited, status)
+      VALUES (?, datetime('now'), datetime('now', '+15 minutes'), 
+              COALESCE((SELECT bottles_deposited FROM users WHERE mac_address = ?), 0) + 1, 'active')
+    `);
+    
+    userStmt.run(macAddress, macAddress);
+    
+    // Update daily stats
+    const statsStmt = db.prepare(`
+      INSERT OR REPLACE INTO system_stats (date, total_bottles, co2_saved)
+      VALUES (date('now'), 
+              COALESCE((SELECT total_bottles FROM system_stats WHERE date = date('now')), 0) + 1,
+              COALESCE((SELECT co2_saved FROM system_stats WHERE date = date('now')), 0) + 0.082)
+    `);
+    
+    statsStmt.run();
+    
+    // Grant WiFi access via Mikrotik API
+    await grantWifiAccess(macAddress);
+    
+    return c.json({ 
+      success: true, 
+      sessionId: result.lastInsertRowid,
+      message: 'WiFi access granted for 15 minutes'
+    });
+    
+  } catch (error) {
+    console.error('Bottle deposit error:', error);
+    return c.json({ error: 'Failed to process bottle deposit' }, 500);
+  }
 });
 
-function grantWifiAccess(macAddress) {
-    // Mikrotik API call to add user to hotspot
-    // Implementation depends on Mikrotik API library
+// Get bottle history
+app.get('/history', (c) => {
+  const stmt = db.prepare(`
+    SELECT * FROM bottle_logs 
+    ORDER BY timestamp DESC 
+    LIMIT 100
+  `);
+  
+  const history = stmt.all();
+  return c.json(history);
+});
+
+async function grantWifiAccess(macAddress: string) {
+  // Mikrotik API implementation
+  // Use HTTP requests to Mikrotik API
+  try {
+    const response = await fetch('http://192.168.1.1/api/hotspot/user/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + btoa('admin:password')
+      },
+      body: JSON.stringify({
+        name: macAddress,
+        password: 'ecowifi2024',
+        limit_uptime: '15m'
+      })
+    });
+    
+    return response.ok;
+  } catch (error) {
+    console.error('Failed to grant WiFi access:', error);
+    return false;
+  }
 }
 
-// Socket.IO for real-time updates
-io.on('connection', (socket) => {
-    console.log('Client connected');
-    
-    socket.on('sensor-data', (data) => {
-        // Broadcast sensor status to all connected clients
-        socket.broadcast.emit('status-update', data);
-    });
+export { app as bottleRoutes };
+```
+
+#### User Routes (src/routes/user.ts)
+```typescript
+import { Hono } from 'hono';
+import Database from 'better-sqlite3';
+
+const db = new Database('ecowifi.db');
+const app = new Hono();
+
+// Get user session info
+app.get('/session/:macAddress', (c) => {
+  const macAddress = c.req.param('macAddress');
+  
+  const stmt = db.prepare(`
+    SELECT * FROM users 
+    WHERE mac_address = ? AND status = 'active' 
+    AND datetime(session_end) > datetime('now')
+  `);
+  
+  const user = stmt.get(macAddress);
+  
+  if (!user) {
+    return c.json({ error: 'No active session found' }, 404);
+  }
+  
+  return c.json(user);
 });
 
-server.listen(3000, () => {
-    console.log('EcoWiFi server running on port 3000');
+// Extend session (for multiple bottles)
+app.post('/extend', async (c) => {
+  const { macAddress } = await c.req.json();
+  
+  const stmt = db.prepare(`
+    UPDATE users 
+    SET session_end = datetime(session_end, '+15 minutes'),
+        bottles_deposited = bottles_deposited + 1
+    WHERE mac_address = ? AND status = 'active'
+  `);
+  
+  const result = stmt.run(macAddress);
+  
+  if (result.changes === 0) {
+    return c.json({ error: 'User not found or session expired' }, 404);
+  }
+  
+  return c.json({ success: true, message: 'Session extended by 15 minutes' });
+});
+
+export { app as userRoutes };
+```
+
+#### Stats Routes (src/routes/stats.ts)
+```typescript
+import { Hono } from 'hono';
+import Database from 'better-sqlite3';
+
+const db = new Database('ecowifi.db');
+const app = new Hono();
+
+// Get system statistics
+app.get('/dashboard', (c) => {
+  const today = db.prepare(`
+    SELECT * FROM system_stats WHERE date = date('now')
+  `).get();
+  
+  const totalBottles = db.prepare(`
+    SELECT COUNT(*) as count FROM bottle_logs
+  `).get();
+  
+  const activeSessions = db.prepare(`
+    SELECT COUNT(*) as count FROM users 
+    WHERE status = 'active' AND datetime(session_end) > datetime('now')
+  `).get();
+  
+  return c.json({
+    today: today || { total_bottles: 0, total_sessions: 0, co2_saved: 0 },
+    totalBottles: totalBottles.count,
+    activeSessions: activeSessions.count
+  });
+});
+
+export { app as statsRoutes };
+```
+
+#### Package.json Configuration
+```json
+{
+  "name": "ecowifi-server",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build src/index.ts --outdir ./dist --target bun",
+    "start": "bun run dist/index.js",
+    "db:migrate": "bun run src/migrate.ts"
+  },
+  "dependencies": {
+    "hono": "^3.12.0",
+    "better-sqlite3": "^9.2.2",
+    "@hono/node-server": "^1.8.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  }
+}
+```
+
+### Frontend Client (JavaScript)
+
+#### Captive Portal Client (public/js/portal.js)
+```javascript
+class EcoWiFiPortal {
+  constructor() {
+    this.statusElement = document.getElementById('status');
+    this.statusText = document.getElementById('status-text');
+    this.timerElement = document.getElementById('timer');
+    this.minutesElement = document.getElementById('minutes');
+    this.secondsElement = document.getElementById('seconds');
+    
+    this.init();
+  }
+  
+  init() {
+    // Get user's MAC address (simplified approach)
+    this.macAddress = this.getMacAddress();
+    
+    // Check for existing session
+    this.checkSession();
+    
+    // Start polling for bottle detection
+    this.startPolling();
+  }
+  
+  getMacAddress() {
+    // In a real implementation, this would come from the captive portal
+    // For now, we'll use a placeholder or generate one
+    return '00:00:00:00:00:00';
+  }
+  
+  async checkSession() {
+    try {
+      const response = await fetch(`/api/user/session/${this.macAddress}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        this.showActiveSession(data);
+      }
+    } catch (error) {
+      console.log('No active session found');
+    }
+  }
+  
+  async startPolling() {
+    setInterval(async () => {
+      await this.checkBottleStatus();
+    }, 2000);
+  }
+  
+  async checkBottleStatus() {
+    try {
+      const response = await fetch('/api/bottle/status');
+      const data = await response.json();
+      
+      if (data.bottleDetected) {
+        await this.processBottleDeposit();
+      }
+    } catch (error) {
+      console.error('Error checking bottle status:', error);
+    }
+  }
+  
+  async processBottleDeposit() {
+    try {
+      this.updateStatus('Processing bottle...', 'yellow');
+      
+      const response = await fetch('/api/bottle/deposit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          macAddress: this.macAddress,
+          weight: 25.5, // These would come from sensors
+          size: 20.0
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        this.updateStatus(data.message, 'green');
+        this.startTimer();
+        this.updateEnvironmentalStats();
+      } else {
+        this.updateStatus(data.error || 'Failed to process bottle', 'red');
+      }
+    } catch (error) {
+      this.updateStatus('Error processing bottle', 'red');
+    }
+  }
+  
+  updateStatus(message, type) {
+    this.statusText.textContent = message;
+    
+    // Update status styling based on type
+    this.statusElement.className = `border-2 rounded-lg p-4 mb-6`;
+    
+    switch(type) {
+      case 'green':
+        this.statusElement.classList.add('bg-green-100', 'border-green-300');
+        break;
+      case 'yellow':
+        this.statusElement.classList.add('bg-yellow-100', 'border-yellow-300');
+        break;
+      case 'red':
+        this.statusElement.classList.add('bg-red-100', 'border-red-300');
+        break;
+      default:
+        this.statusElement.classList.add('bg-gray-100', 'border-gray-300');
+    }
+  }
+  
+  startTimer() {
+    this.timerElement.classList.remove('hidden');
+    
+    let timeLeft = 15 * 60; // 15 minutes
+    const timerInterval = setInterval(() => {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      
+      this.minutesElement.textContent = minutes.toString().padStart(2, '0');
+      this.secondsElement.textContent = seconds.toString().padStart(2, '0');
+      
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        this.showExpiredMessage();
+      }
+      
+      timeLeft--;
+    }, 1000);
+  }
+  
+  showExpiredMessage() {
+    this.updateStatus('Session expired. Insert another bottle to continue.', 'red');
+  }
+  
+  updateEnvironmentalStats() {
+    const bottleCount = parseInt(document.getElementById('bottle-count').textContent) + 1;
+    document.getElementById('bottle-count').textContent = bottleCount;
+    document.getElementById('co2-saved').textContent = (bottleCount * 0.082).toFixed(2);
+  }
+}
+
+// Initialize portal when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  new EcoWiFiPortal();
 });
 ```
 
