@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoWiFi - Step by Step Assembly Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .step-card {
+            transition: all 0.3s ease;
+        }
+        .step-card:hover {
+            transform: translateY(-5px);
+        }
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-green-600 to-blue-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-recycle text-2xl"></i>
+                    <h1 class="text-xl font-bold">EcoWiFi Assembly Guide</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm">Step <span id="current-step">1</span> of 8</span>
+                    <div class="w-32 bg-white bg-opacity-20 rounded-full h-2">
+                        <div id="progress-bar" class="progress-bar bg-white h-2 rounded-full" style="width: 12.5%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Introduction -->
+        <section class="mb-12 fade-in">
+            <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+                <i class="fas fa-rocket text-6xl text-green-500 mb-4 pulse"></i>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">Build Your EcoWiFi System</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">
+                    Follow this comprehensive step-by-step guide to assemble your EcoWiFi system that converts plastic bottle recycling into free internet access.
+                </p>
+            </div>
+        </section>
+
+        <!-- Steps Container -->
+        <div class="grid gap-8 mb-12">
+            <!-- Step 1: Hardware Setup -->
+            <div class="step-card bg-white rounded-xl shadow-lg overflow-hidden fade-in" data-step="1">
+                <div class="bg-gradient-to-r from-orange-500 to-red-500 text-white p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-white text-orange-500 rounded-full w-8 h-8 flex items-center justify-center font-bold">1</span>
+                            <h3 class="text-xl font-semibold">Hardware Setup</h3>
+                        </div>
+                        <i class="fas fa-microchip text-2xl"></i>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Components Needed:</h4>
+                            <ul class="space-y-2">
+                                <li class="flex items-center">
+                                    <i class="fas fa-desktop text-orange-500 mr-2"></i>
+                                    Orange Pi 4 (Main Controller)
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-network-wired text-blue-500 mr-2"></i>
+                                    Mikrotik Router (Network Gateway)
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-microchip text-purple-500 mr-2"></i>
+                                    ESP32 (Sensor Controller)
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-ethernet text-green-500 mr-2"></i>
+                                    USR-ES1 W5500 Ethernet Module
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Actions:</h4>
+                            <ol class="space-y-2 text-sm">
+                                <li>1. Flash Armbian to Orange Pi 4 SD card</li>
+                                <li>2. Connect all components to power</li>
+                                <li>3. Verify LED indicators on all devices</li>
+                                <li>4. Connect Orange Pi 4 to network via Ethernet</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="mt-4 p-4 bg-orange-50 rounded-lg">
+                        <p class="text-sm text-orange-800">
+                            <i class="fas fa-lightbulb mr-2"></i>
+                            <strong>Tip:</strong> Use a surge protector for all power connections to prevent damage during setup.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Sensor Installation -->
+            <div class="step-card bg-white rounded-xl shadow-lg overflow-hidden fade-in" data-step="2">
+                <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-white text-purple-500 rounded-full w-8 h-8 flex items-center justify-center font-bold">2</span>
+                            <h3 class="text-xl font-semibold">Sensor Installation</h3>
+                        </div>
+                        <i class="fas fa-satellite-dish text-2xl"></i>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-3 gap-4 mb-4">
+                        <div class="border-2 border-purple-200 rounded-lg p-4">
+                            <h5 class="font-semibold text-purple-700 mb-2">HC-SR04 Ultrasonic</h5>
+                            <ul class="text-sm space-y-1">
+                                <li>• Top: Bottle detection</li>
+                                <li>• Bottom: Bin level monitoring</li>
+                                <li>• GPIO 5, 18 (Trigger, Echo)</li>
+                            </ul>
+                        </div>
+                        <div class="border-2 border-purple-200 rounded-lg p-4">
+                            <h5 class="font-semibold text-purple-700 mb-2">MG996R Servo Motor</h5>
+                            <ul class="text-sm space-y-1">
+                                <li>• Bottle sorting mechanism</li>
+                                <li>• GPIO 21 (PWM control)</li>
+                                <li>• External power required</li>
+                            </ul>
+                        </div>
+                        <div class="border-2 border-purple-200 rounded-lg p-4">
+                            <h5 class="font-semibold text-purple-700 mb-2">AS7265x Spectroscopy</h5>
+                            <ul class="text-sm space-y-1">
+                                <li>• Plastic material detection</li>
+                                <li>• Qwiic I2C interface</li>
+                                <li>• SDA: GPIO 22, SCL: GPIO 23</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-purple-50 rounded-lg">
+                        <p class="text-sm text-purple-800">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            <strong>Important:</strong> Calibrate each sensor before final installation. Test with sample bottles to ensure proper detection.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Network Configuration -->
+            <div class="step-card bg-white rounded-xl shadow-lg overflow-hidden fade-in" data-step="3">
+                <div class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-white text-blue-500 rounded-full w-8 h-8 flex items-center justify-center font-bold">3</span>
+                            <h3 class="text-xl font-semibold">Network Configuration</h3>
+                        </div>
+                        <i class="fas fa-wifi text-2xl"></i>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Mikrotik Router Setup:</h4>
+                            <div class="bg-gray-50 rounded-lg p-4 text-sm font-mono">
+                                <p class="mb-2">WiFi Network: EcoWiFi-Guest</p>
+                                <p class="mb-2">Security: WPA2-PSK</p>
+                                <p class="mb-2">Captive Portal: Enabled</p>
+                                <p>Session Timeout: 15 minutes</p>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3">IP Address Configuration:</h4>
+                            <div class="bg-gray-50 rounded-lg p-4 text-sm font-mono">
+                                <p class="mb-2">Orange Pi 4: 192.168.1.10</p>
+                                <p class="mb-2">Mikrotik: 192.168.1.1</p>
+                                <p class="mb-2">ESP32/W5500: 192.168.1.20</p>
+                                <p>Gateway: 192.168.1.1</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Software Installation -->
+            <div class="step-card bg-white rounded-xl shadow-lg overflow-hidden fade-in" data-step="4">
+                <div class="bg-gradient-to-r from-green-500 to-teal-500 text-white p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-white text-green-500 rounded-full w-8 h-8 flex items-center justify-center font-bold">4</span>
+                            <h3 class="text-xl font-semibold">Software Installation</h3>
+                        </div>
+                        <i class="fas fa-code text-2xl"></i>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">Install Bun Runtime:</h4>
+                            <div class="bg-gray-900 text-green-400 p-3 rounded-lg text-sm font-mono">
+                                curl -fsSL https://bun.sh/install | bash
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">Setup Project:</h4>
+                            <div class="bg-gray-900 text-green-400 p-3 rounded-lg text-sm font-mono">
+                                bun init ecowifi-server<br>
+                                cd ecowifi-server<br>
+                                bun add hono better-sqlite3 @hono/node-server
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">Initialize Database:</h4>
+                            <div class="bg-gray-900 text-green-400 p-3 rounded-lg text-sm font-mono">
+                                bun run src/migrate.ts
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: ESP32 Programming -->
+            <div class="step-card bg-white rounded-xl shadow-lg overflow-hidden fade-in" data-step="5">
+                <div class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-white text-indigo-500 rounded-full w-8 h-8 flex items-center justify-center font-bold">5</span>
+                            <h3 class="text-xl font-semibold">ESP32 Programming</h3>
+                        </div>
+                        <i class="fas fa-microchip text-2xl"></i>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Arduino IDE Setup:</h4>
+                            <ul class="text-sm space-y-1">
+                                <li>1. Install ESP32 Board Manager</li>
+                                <li>2. Select "ESP32 Dev Module"</li>
+                                <li>3. Upload sensor control code</li>
+                                <li>4. Test sensor readings</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Key Libraries:</h4>
+                            <ul class="text-sm space-y-1">
+                                <li>• WiFi.h (Network connectivity)</li>
+                                <li>• Ethernet.h (W5500 support)</li>
+                                <li>• HX711.h (Load cell)</li>
+                                <li>• NewPing.h (Ultrasonic)</li>
+                                <li>• Wire.h (I2C for AS7265x)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Mechanical Assembly -->
+            <div class="step-card bg-white rounded-xl shadow-lg overflow-hidden fade-in" data-step="6">
+                <div class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-white text-yellow-500 rounded-full w-8 h-8 flex items-center justify-center font-bold">6</span>
+                            <h3 class="text-xl font-semibold">Mechanical Assembly</h3>
+                        </div>
+                        <i class="fas fa-tools text-2xl"></i>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="border-2 border-yellow-200 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-2">Enclosure Construction:</h4>
+                            <ul class="text-sm space-y-1">
+                                <li>• Weatherproof housing for outdoor installation</li>
+                                <li>• Bottle insertion slot (3-5 cm diameter)</li>
+                                <li>• Secure mounting brackets for sensors</li>
+                                <li>• Proper ventilation for electronics</li>
+                            </ul>
+                        </div>
+                        <div class="border-2 border-yellow-200 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-2">Sensor Placement:</h4>
+                            <ul class="text-sm space-y-1">
+                                <li>• Top ultrasonic: 10cm above insertion slot</li>
+                                <li>• Bottom ultrasonic: 5cm above bin base</li>
+                                <li>• AS7265x: Inside bottle path for material scanning</li>
+                                <li>• Servo motor: Connected to sorting mechanism</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 7: System Testing -->
+            <div class="step-card bg-white rounded-xl shadow-lg overflow-hidden fade-in" data-step="7">
+                <div class="bg-gradient-to-r from-pink-500 to-rose-500 text-white p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-white text-pink-500 rounded-full w-8 h-8 flex items-center justify-center font-bold">7</span>
+                            <h3 class="text-xl font-semibold">System Testing</h3>
+                        </div>
+                        <i class="fas fa-flask text-2xl"></i>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Hardware Tests:</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" class="form-checkbox text-pink-500">
+                                    <span class="text-sm">Power all components</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" class="form-checkbox text-pink-500">
+                                    <span class="text-sm">Test sensor detection</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" class="form-checkbox text-pink-500">
+                                    <span class="text-sm">Verify network connectivity</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" class="form-checkbox text-pink-500">
+                                    <span class="text-sm">Check WiFi signal strength</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Software Tests:</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" class="form-checkbox text-pink-500">
+                                    <span class="text-sm">Database connectivity</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" class="form-checkbox text-pink-500">
+                                    <span class="text-sm">Captive portal redirection</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" class="form-checkbox text-pink-500">
+                                    <span class="text-sm">Bottle detection workflow</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" class="form-checkbox text-pink-500">
+                                    <span class="text-sm">Session timeout functionality</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 8: Deployment -->
+            <div class="step-card bg-white rounded-xl shadow-lg overflow-hidden fade-in" data-step="8">
+                <div class="bg-gradient-to-r from-teal-500 to-green-500 text-white p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-white text-teal-500 rounded-full w-8 h-8 flex items-center justify-center font-bold">8</span>
+                            <h3 class="text-xl font-semibold">Deployment & Launch</h3>
+                        </div>
+                        <i class="fas fa-rocket text-2xl"></i>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Site Preparation:</h4>
+                            <ul class="text-sm space-y-1">
+                                <li>• High foot traffic location</li>
+                                <li>• Outdoor power availability</li>
+                                <li>• Internet connectivity</li>
+                                <li>• Secure mounting surface</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Final Steps:</h4>
+                            <ul class="text-sm space-y-1">
+                                <li>• Mount enclosure securely</li>
+                                <li>• Connect power and network</li>
+                                <li>• Install user instructions</li>
+                                <li>• Test with sample bottles</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="mt-4 p-4 bg-green-50 rounded-lg">
+                        <p class="text-sm text-green-800">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            <strong>Success!</strong> Your EcoWiFi system is now ready to provide internet access in exchange for plastic bottle recycling.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="flex justify-between items-center mb-8">
+            <button id="prev-btn" class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled>
+                <i class="fas fa-arrow-left mr-2"></i> Previous
+            </button>
+            <div class="flex space-x-2">
+                <span class="step-indicator w-3 h-3 bg-green-500 rounded-full" data-step="1"></span>
+                <span class="step-indicator w-3 h-3 bg-gray-300 rounded-full" data-step="2"></span>
+                <span class="step-indicator w-3 h-3 bg-gray-300 rounded-full" data-step="3"></span>
+                <span class="step-indicator w-3 h-3 bg-gray-300 rounded-full" data-step="4"></span>
+                <span class="step-indicator w-3 h-3 bg-gray-300 rounded-full" data-step="5"></span>
+                <span class="step-indicator w-3 h-3 bg-gray-300 rounded-full" data-step="6"></span>
+                <span class="step-indicator w-3 h-3 bg-gray-300 rounded-full" data-step="7"></span>
+                <span class="step-indicator w-3 h-3 bg-gray-300 rounded-full" data-step="8"></span>
+            </div>
+            <button id="next-btn" class="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors">
+                Next <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+
+        <!-- Quick Help -->
+        <section class="bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                <i class="fas fa-question-circle text-blue-500 mr-2"></i>
+                Quick Help
+            </h3>
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="p-4 bg-blue-50 rounded-lg">
+                    <h4 class="font-semibold text-blue-700 mb-2">Troubleshooting</h4>
+                    <p class="text-sm text-blue-600">Check sensor connections and network settings if issues occur.</p>
+                </div>
+                <div class="p-4 bg-green-50 rounded-lg">
+                    <h4 class="font-semibold text-green-700 mb-2">Documentation</h4>
+                    <p class="text-sm text-green-600">Refer to the complete building guide for detailed technical specifications.</p>
+                </div>
+                <div class="p-4 bg-purple-50 rounded-lg">
+                    <h4 class="font-semibold text-purple-700 mb-2">Support</h4>
+                    <p class="text-sm text-purple-600">Join our community forum for additional help and tips.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex items-center justify-center space-x-4 mb-4">
+                <i class="fas fa-recycle text-2xl text-green-400"></i>
+                <span class="text-xl font-semibold">EcoWiFi System</span>
+            </div>
+            <p class="text-gray-400 text-sm">
+                Turning plastic waste into valuable internet access for communities
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 8;
+
+        function updateStep(step) {
+            currentStep = step;
+            
+            // Update progress bar
+            const progress = (step / totalSteps) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+            document.getElementById('current-step').textContent = step;
+            
+            // Update step cards visibility
+            document.querySelectorAll('.step-card').forEach((card, index) => {
+                if (index + 1 === step) {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    card.classList.add('ring-4', 'ring-green-400', 'ring-opacity-50');
+                } else {
+                    card.classList.remove('ring-4', 'ring-green-400', 'ring-opacity-50');
+                }
+            });
+            
+            // Update step indicators
+            document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
+                if (index + 1 <= step) {
+                    indicator.classList.remove('bg-gray-300');
+                    indicator.classList.add('bg-green-500');
+                } else {
+                    indicator.classList.remove('bg-green-500');
+                    indicator.classList.add('bg-gray-300');
+                }
+            });
+            
+            // Update navigation buttons
+            document.getElementById('prev-btn').disabled = step === 1;
+            document.getElementById('next-btn').disabled = step === totalSteps;
+            
+            if (step === totalSteps) {
+                document.getElementById('next-btn').innerHTML = '<i class="fas fa-check mr-2"></i> Complete';
+            } else {
+                document.getElementById('next-btn').innerHTML = 'Next <i class="fas fa-arrow-right ml-2"></i>';
+            }
+        }
+
+        // Navigation event listeners
+        document.getElementById('prev-btn').addEventListener('click', () => {
+            if (currentStep > 1) {
+                updateStep(currentStep - 1);
+            }
+        });
+
+        document.getElementById('next-btn').addEventListener('click', () => {
+            if (currentStep < totalSteps) {
+                updateStep(currentStep + 1);
+            }
+        });
+
+        // Step indicator clicks
+        document.querySelectorAll('.step-indicator').forEach(indicator => {
+            indicator.addEventListener('click', () => {
+                const step = parseInt(indicator.dataset.step);
+                updateStep(step);
+            });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' && currentStep > 1) {
+                updateStep(currentStep - 1);
+            } else if (e.key === 'ArrowRight' && currentStep < totalSteps) {
+                updateStep(currentStep + 1);
+            }
+        });
+
+        // Initialize
+        updateStep(1);
+
+        // Add fade-in animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.step-card').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
