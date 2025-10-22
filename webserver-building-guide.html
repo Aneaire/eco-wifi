@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoWiFi - Webserver Building Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .step-card {
+            transition: all 0.3s ease;
+        }
+        .step-card:hover {
+            transform: translateY(-5px);
+        }
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-server text-2xl"></i>
+                    <h1 class="text-xl font-bold">EcoWiFi Webserver Guide</h1>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Introduction -->
+        <section class="mb-12 fade-in">
+            <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+                <i class="fas fa-code text-6xl text-blue-500 mb-4 pulse"></i>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">Build Your EcoWiFi Webserver</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">
+                    Follow this comprehensive guide to set up the backend webserver that powers your EcoWiFi system, handling bottle detection, user sessions, and WiFi access management.
+                </p>
+            </div>
+        </section>
+
+        <!-- Steps Container -->
+        <div class="grid gap-8 mb-12">
+            <!-- Step 1: Prerequisites -->
+            <div class="step-card bg-white rounded-xl shadow-lg overflow-hidden fade-in" data-step="1">
+                <div class="bg-gradient-to-r from-orange-500 to-red-500 text-white p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-white text-orange-500 rounded-full w-8 h-8 flex items-center justify-center font-bold">1</span>
+                            <h3 class="text-xl font-semibold">Prerequisites</h3>
+                        </div>
+                        <i class="fas fa-tools text-2xl"></i>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3">System Requirements:</h4>
+                            <ul class="space-y-2">
+                                <li class="flex items-center">
+                                    <i class="fas fa-linux text-orange-500 mr-2"></i>
+                                    Linux-based system (Ubuntu/Armbian)
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-memory text-blue-500 mr-2"></i>
+                                    2GB RAM minimum
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-hdd text-purple-500 mr-2"></i>
+                                    8GB storage space
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-network-wired text-green-500 mr-2"></i>
+                                    Network connectivity
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Software Dependencies:</h4>
+                            <div class="bg-gray-900 text-green-400 p-3 rounded-lg text-sm font-mono">
+                                sudo apt update<br>
+                                sudo apt install curl git build-essential
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 p-4 bg-orange-50 rounded-lg">
+                        <p class="text-sm text-orange-800">
+                            <i class="fas fa-lightbulb mr-2"></i>
+                            <strong>Tip:</strong> Ensure your system is up to date and has internet access for package installation.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Bun Installation -->
+            <div class="step-card bg-white rounded-xl shadow-lg overflow-hidden fade-in" data-step="2">
+                <div class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-white text-yellow-500 rounded-full w-8 h-8 flex items-center justify-center font-bold">2</span>
+                            <h3 class="text-xl font-semibold">Bun Runtime Setup</h3>
+                        </div>
+                        <i class="fas fa-download text-2xl"></i>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">Install Bun:</h4>
+                            <div class="bg-gray-900 text-green-400 p-3 rounded-lg text-sm font-mono">
+                                curl -fsSL https://bun.sh/install | bash<br>
+                                source ~/.bashrc
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">Verify Installation:</h4>
+                            <div class="bg-gray-900 text-green-400 p-3 rounded-lg text-sm font-mono">
+                                bun --version
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 p-4 bg-yellow-50 rounded-lg">
+                        <p class="text-sm text-yellow-800">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            <strong>Note:</strong> Bun is a fast JavaScript runtime that replaces Node.js for this project.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Project Setup -->
+            <div class="step-card bg-white rounded-xl shadow-lg overflow-hidden fade-in" data-step="3">
+                <div class="bg-gradient-to-r from-green-500 to-teal-500 text-white p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-white text-green-500 rounded-full w-8 h-8 flex items-center justify-center font-bold">3</span>
+                            <h3 class="text-xl font-semibold">Project Initialization</h3>
+                        </div>
+                        <i class="fas fa-folder-plus text-2xl"></i>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">Create Project Directory:</h4>
+                            <div class="bg-gray-900 text-green-400 p-3 rounded-lg text-sm font-mono">
+                                mkdir ecowifi-server<br>
+                                cd ecowifi-server
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">Initialize with Bun:</h4>
+                            <div class="bg-gray-900 text-green-400 p-3 rounded-lg text-sm font-mono">
+                                bun init
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">Install Dependencies:</h4>
+                            <div class="bg-gray-900 text-green-400 p-3 rounded-lg text-sm font-mono">
+                                bun add hono better-sqlite3 @hono/node-server
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Database Setup -->
+            <div class="step-card bg-white rounded-xl shadow-lg overflow-hidden fade-in" data-step="4">
+                <div class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-white text-blue-500 rounded-full w-8 h-8 flex items-center justify-center font-bold">4</span>
+                            <h3 class="text-xl font-semibold">Database Configuration</h3>
+                        </div>
+                        <i class="fas fa-database text-2xl"></i>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Database Schema:</h4>
+                            <div class="bg-gray-50 rounded-lg p-4 text-sm">
+                                <p class="mb-2"><strong>users:</strong> id, mac_address, session_start, credits</p>
+                                <p class="mb-2"><strong>bottle_logs:</strong> id, user_id, timestamp, material_type</p>
+                                <p class="mb-2"><strong>system_stats:</strong> id, timestamp, total_bottles, active_sessions</p>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Migration Script:</h4>
+                            <div class="bg-gray-900 text-green-400 p-3 rounded-lg text-sm font-mono">
+                                bun run src/migrate.ts
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                        <p class="text-sm text-blue-800">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            <strong>Info:</strong> The database uses SQLite with better-sqlite3 for optimal performance.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: API Development -->
+            <div class="step-card bg-white rounded-xl shadow-lg overflow-hidden fade-in" data-step="5">
+                <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-white text-purple-500 rounded-full w-8 h-8 flex items-center justify-center font-bold">5</span>
+                            <h3 class="text-xl font-semibold">API Routes Setup</h3>
+                        </div>
+                        <i class="fas fa-route text-2xl"></i>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Core Endpoints:</h4>
+                            <ul class="text-sm space-y-1">
+                                <li>• POST /api/bottle - Log bottle insertion</li>
+                                <li>• GET /api/session - Check user session</li>
+                                <li>• POST /api/auth - Authenticate user</li>
+                                <li>• GET /api/stats - System statistics</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Route Structure:</h4>
+                            <div class="bg-gray-50 rounded-lg p-4 text-sm font-mono">
+                                src/routes/<br>
+                                ├── bottle.ts<br>
+                                ├── auth.ts<br>
+                                ├── stats.ts<br>
+                                └── index.ts
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Testing -->
+            <div class="step-card bg-white rounded-xl shadow-lg overflow-hidden fade-in" data-step="6">
+                <div class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-white text-indigo-500 rounded-full w-8 h-8 flex items-center justify-center font-bold">6</span>
+                            <h3 class="text-xl font-semibold">Testing & Validation</h3>
+                        </div>
+                        <i class="fas fa-flask text-2xl"></i>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3">API Tests:</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" class="form-checkbox text-indigo-500">
+                                    <span class="text-sm">Test bottle logging endpoint</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" class="form-checkbox text-indigo-500">
+                                    <span class="text-sm">Verify session management</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" class="form-checkbox text-indigo-500">
+                                    <span class="text-sm">Check database operations</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Integration Tests:</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" class="form-checkbox text-indigo-500">
+                                    <span class="text-sm">ESP32 communication</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" class="form-checkbox text-indigo-500">
+                                    <span class="text-sm">Frontend connectivity</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" class="form-checkbox text-indigo-500">
+                                    <span class="text-sm">Error handling</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 7: Deployment -->
+            <div class="step-card bg-white rounded-xl shadow-lg overflow-hidden fade-in" data-step="7">
+                <div class="bg-gradient-to-r from-teal-500 to-green-500 text-white p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-white text-teal-500 rounded-full w-8 h-8 flex items-center justify-center font-bold">7</span>
+                            <h3 class="text-xl font-semibold">Production Deployment</h3>
+                        </div>
+                        <i class="fas fa-rocket text-2xl"></i>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Build Process:</h4>
+                            <div class="bg-gray-900 text-green-400 p-3 rounded-lg text-sm font-mono">
+                                bun build src/index.ts --outdir ./dist --target bun
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-3">Start Server:</h4>
+                            <div class="bg-gray-900 text-green-400 p-3 rounded-lg text-sm font-mono">
+                                bun run dist/index.js
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 p-4 bg-green-50 rounded-lg">
+                        <p class="text-sm text-green-800">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            <strong>Success!</strong> Your EcoWiFi webserver is now running and ready to handle bottle recycling transactions.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Quick Help -->
+        <section class="bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                <i class="fas fa-question-circle text-blue-500 mr-2"></i>
+                Quick Help
+            </h3>
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="p-4 bg-blue-50 rounded-lg">
+                    <h4 class="font-semibold text-blue-700 mb-2">Troubleshooting</h4>
+                    <p class="text-sm text-blue-600">Check logs with console.error and verify database connections if issues occur.</p>
+                </div>
+                <div class="p-4 bg-green-50 rounded-lg">
+                    <h4 class="font-semibold text-green-700 mb-2">Documentation</h4>
+                    <p class="text-sm text-green-600">Refer to Hono documentation for advanced routing and middleware features.</p>
+                </div>
+                <div class="p-4 bg-purple-50 rounded-lg">
+                    <h4 class="font-semibold text-purple-700 mb-2">Support</h4>
+                    <p class="text-sm text-purple-600">Join our community forum for help with webserver development and deployment.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex items-center justify-center space-x-4 mb-4">
+                <i class="fas fa-server text-2xl text-blue-400"></i>
+                <span class="text-xl font-semibold">EcoWiFi Webserver</span>
+            </div>
+            <p class="text-gray-400 text-sm">
+                Backend infrastructure for sustainable internet access through plastic recycling
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Add fade-in animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.step-card').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
