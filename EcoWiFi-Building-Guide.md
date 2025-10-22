@@ -32,13 +32,13 @@ The EcoWiFi system is an IoT solution that provides 15 minutes of WiFi internet 
 
 ### Main Components
 
-#### 1. Orange Pi 4
+#### 1. Orange Pi One
 - **Purpose**: Main processing unit and web server
 - **Specifications**: 
-  - ARM Cortex-A72 quad-core processor
-  - 4GB LPDDR4 RAM
-  - Gigabit Ethernet
-  - WiFi and Bluetooth
+  - Allwinner H3 Quad-core Cortex-A7 processor
+  - 1GB DDR3 RAM
+  - 10/100Mbps Ethernet
+  - No built-in WiFi/Bluetooth (use USB adapters if needed)
 - **Role**: Runs Bun/Hono web server, manages SQLite database, handles user authentication
 
 #### 2. Mikrotik Router (hAP ac² or similar)
@@ -75,7 +75,7 @@ The EcoWiFi system is an IoT solution that provides 15 minutes of WiFi internet 
 - **Optional Camera Module**: Material verification (AI-based)
 
 #### Power Supply
-- **5V 3A Power Adapter**: For Orange Pi 4
+- **5V 2A Power Adapter**: For Orange Pi One
 - **12V 2A Power Adapter**: For Mikrotik router
 - **5V 1A Power Supply**: For ESP32 and sensors
 
@@ -90,7 +90,7 @@ The EcoWiFi system is an IoT solution that provides 15 minutes of WiFi internet 
 ## Software Requirements
 
 ### Operating Systems
-- **Orange Pi 4**: Armbian or Ubuntu Server 20.04+
+- **Orange Pi One**: Armbian or Ubuntu Server 20.04+
 - **Mikrotik**: RouterOS (latest version)
 - **ESP32**: Arduino IDE or ESP-IDF
 
@@ -124,9 +124,9 @@ pip install machine network urequests
 
 ### Phase 1: Hardware Setup
 
-#### Step 1: Orange Pi 4 Configuration
+#### Step 1: Orange Pi One Configuration
 1. Flash Armbian to SD card
-2. Boot Orange Pi 4 and perform initial setup
+2. Boot Orange Pi One and perform initial setup
 3. Connect to network via Ethernet
 4. Update system: `sudo apt update && sudo apt upgrade`
 5. Install required packages:

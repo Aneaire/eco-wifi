@@ -1,5 +1,8 @@
 # EcoWiFi System - Agent Development Guide
 
+## Remote Access
+- Orange Pi One: `ssh root@10.55.11.97` (password: ken)
+
 ## Build Commands
 - **Development**: `bun run --watch src/index.ts` (starts dev server with hot reload)
 - **Build**: `bun build src/index.ts --outdir ./dist --target bun`
