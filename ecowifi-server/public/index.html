@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecyFi - Save the Earth, One Plastic at a Time</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'recyfi-green': '#10b981',
+                        'recyfi-dark': '#064e3b',
+                        'recyfi-light': '#d1fae5',
+                        'recyfi-accent': '#34d399'
+                    },
+                    fontFamily: {
+                        'minimal': ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="font-minimal bg-gradient-to-br from-green-50 to-emerald-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md shadow-sm fixed w-full top-0 z-50">
+        <nav class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-recyfi-green rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z"/>
+                            <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-4a1 1 0 01-1-1V6a1 1 0 011-1z"/>
+                        </svg>
+                    </div>
+                    <h1 class="text-2xl font-bold text-recyfi-dark">RecyFi</h1>
+                </div>
+                <button onclick="scrollToSection('stats')" class="text-recyfi-dark hover:text-recyfi-green transition-colors font-medium">
+                    Our Impact
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="pt-24 pb-16 px-6">
+        <div class="container mx-auto text-center">
+            <div class="max-w-4xl mx-auto">
+                <!-- Earth Image -->
+                <div class="mb-8 flex justify-center">
+                    <img src="/image/A slogan for saving the Earth pixalated greeny.png" 
+                         alt="Save the Earth" 
+                         class="rounded-2xl shadow-2xl max-w-md w-full h-auto"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="hidden items-center justify-center w-64 h-64 bg-gradient-to-br from-recyfi-green to-emerald-400 rounded-2xl shadow-2xl">
+                        <svg class="w-32 h-32 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z"/>
+                            <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-4a1 1 0 01-1-1V6a1 1 0 011-1z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Main Message -->
+                <h2 class="text-4xl md:text-6xl font-bold text-recyfi-dark mb-6 leading-tight">
+                    Save the Earth,<br>
+                    <span class="text-recyfi-green">One Plastic at a Time</span>
+                </h2>
+                
+                <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+                    Join the movement to reduce plastic waste and get rewarded with free WiFi. 
+                    Together, we can make a difference for our planet.
+                </p>
+
+                <!-- CTA Button -->
+                <button onclick="navigateToDeposit()" 
+                        class="bg-recyfi-green hover:bg-recyfi-dark text-white font-semibold py-4 px-8 rounded-full text-lg transition-all transform hover:scale-105 shadow-lg">
+                    Insert Plastic → Get 5 Min Free WiFi
+                </button>
+
+                <!-- Quick Stats -->
+                <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+                    <div class="bg-white rounded-xl p-6 shadow-md">
+                        <div class="text-3xl font-bold text-recyfi-green" id="totalBottles">-</div>
+                        <div class="text-gray-600 mt-1">Plastics Recycled</div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-md">
+                        <div class="text-3xl font-bold text-recyfi-green" id="activeUsers">-</div>
+                        <div class="text-gray-600 mt-1">Active Users</div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-md">
+                        <div class="text-3xl font-bold text-recyfi-green" id="totalUsers">-</div>
+                        <div class="text-gray-600 mt-1">Total Participants</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="py-16 px-6 bg-white">
+        <div class="container mx-auto">
+            <h3 class="text-3xl font-bold text-center text-recyfi-dark mb-12">How RecyFi Works</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-recyfi-light rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-2xl font-bold text-recyfi-green">1</span>
+                    </div>
+                    <h4 class="font-semibold text-lg mb-2">Insert Plastic</h4>
+                    <p class="text-gray-600">Place any plastic item in our recycling bin</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-recyfi-light rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-2xl font-bold text-recyfi-green">2</span>
+                    </div>
+                    <h4 class="font-semibold text-lg mb-2">Get WiFi</h4>
+                    <p class="text-gray-600">Receive 5 minutes of free internet access</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-recyfi-light rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-2xl font-bold text-recyfi-green">3</span>
+                    </div>
+                    <h4 class="font-semibold text-lg mb-2">Save Earth</h4>
+                    <p class="text-gray-600">Help reduce plastic waste globally</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Impact Section -->
+    <section id="stats" class="py-16 px-6 bg-gradient-to-br from-recyfi-light to-green-50">
+        <div class="container mx-auto text-center">
+            <h3 class="text-3xl font-bold text-recyfi-dark mb-12">Our Environmental Impact</h3>
+            <div class="bg-white rounded-2xl p-8 shadow-xl max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="font-semibold text-xl mb-4 text-recyfi-dark">Today's Achievement</h4>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center p-3 bg-recyfi-light rounded-lg">
+                                <span class="text-gray-700">Plastics Processed</span>
+                                <span class="font-bold text-recyfi-green" id="todayBottles">-</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-recyfi-light rounded-lg">
+                                <span class="text-gray-700">WiFi Sessions</span>
+                                <span class="font-bold text-recyfi-green" id="todaySessions">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-xl mb-4 text-recyfi-dark">All Time Impact</h4>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-700">Total Plastics</span>
+                                <span class="font-bold text-recyfi-green" id="allTimeBottles">-</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-700">Community Members</span>
+                                <span class="font-bold text-recyfi-green" id="allTimeUsers">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-recyfi-dark text-white py-8 px-6">
+        <div class="container mx-auto text-center">
+            <div class="flex items-center justify-center space-x-2 mb-4">
+                <div class="w-6 h-6 bg-recyfi-green rounded"></div>
+                <span class="text-xl font-bold">RecyFi</span>
+            </div>
+            <p class="text-recyfi-light">Together, we're making the world cleaner, one plastic at a time.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Fetch statistics from API
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats/dashboard');
+                const stats = await response.json();
+                
+                // Update hero stats
+                document.getElementById('totalBottles').textContent = stats.totalBottles.toLocaleString();
+                document.getElementById('activeUsers').textContent = stats.activeSessions.toLocaleString();
+                document.getElementById('totalUsers').textContent = stats.totalUsers.toLocaleString();
+                
+                // Update today's stats
+                document.getElementById('todayBottles').textContent = stats.today.total_bottles.toLocaleString();
+                document.getElementById('todaySessions').textContent = stats.today.total_sessions.toLocaleString();
+                
+                // Update all-time stats
+                document.getElementById('allTimeBottles').textContent = stats.totalBottles.toLocaleString();
+                document.getElementById('allTimeUsers').textContent = stats.totalUsers.toLocaleString();
+                
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+                // Set default values if API fails
+                document.querySelectorAll('[id$="Bottles"], [id$="Users"], [id$="Sessions"]').forEach(el => {
+                    el.textContent = '0';
+                });
+            }
+        }
+
+        // Navigation functions
+        function navigateToDeposit() {
+            window.location.href = '/deposit.html';
+        }
+
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Load stats on page load
+        document.addEventListener('DOMContentLoaded', loadStats);
+        
+        // Refresh stats every 30 seconds
+        setInterval(loadStats, 30000);
+    </script>
+</body>
+</html>

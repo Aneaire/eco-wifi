@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insert Plastic - RecyFi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'recyfi-green': '#10b981',
+                        'recyfi-dark': '#064e3b',
+                        'recyfi-light': '#d1fae5',
+                        'recyfi-accent': '#34d399'
+                    },
+                    fontFamily: {
+                        'minimal': ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="font-minimal bg-gradient-to-br from-green-50 to-emerald-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md shadow-sm fixed w-full top-0 z-50">
+        <nav class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-recyfi-green rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z"/>
+                            <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-4a1 1 0 01-1-1V6a1 1 0 011-1z"/>
+                        </svg>
+                    </div>
+                    <h1 class="text-2xl font-bold text-recyfi-dark">RecyFi</h1>
+                </div>
+                <button onclick="goHome()" class="text-recyfi-dark hover:text-recyfi-green transition-colors font-medium">
+                    ← Back to Home
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="pt-24 pb-16 px-6">
+        <div class="container mx-auto max-w-2xl">
+            <!-- Instructions -->
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-recyfi-dark mb-4">
+                    Insert Your Plastic
+                </h2>
+                <p class="text-lg text-gray-600 mb-6">
+                    Place any plastic item in the recycling bin below to get 5 minutes of free WiFi access.
+                </p>
+            </div>
+
+            <!-- Plastic Insertion Area -->
+            <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                <div class="border-4 border-dashed border-recyfi-green rounded-xl p-12 text-center bg-recyfi-light/30">
+                    <div class="mb-6">
+                        <svg class="w-24 h-24 text-recyfi-green mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 1 1 0 000 2H6a2 2 0 100 4h2a2 2 0 100-4h-.5a1 1 0 000-2H8a2 2 0 012-2h2a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-recyfi-dark mb-2">
+                        Drop Plastic Here
+                    </h3>
+                    <p class="text-gray-600 mb-4">
+                        Bottles, containers, bags, or any plastic items
+                    </p>
+                    <button onclick="simulateDeposit()" 
+                            class="bg-recyfi-green hover:bg-recyfi-dark text-white font-semibold py-3 px-6 rounded-full transition-all transform hover:scale-105 shadow-lg">
+                        I've Inserted Plastic → Get WiFi
+                    </button>
+                </div>
+            </div>
+
+            <!-- Status Display -->
+            <div id="statusSection" class="hidden">
+                <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-recyfi-dark">Processing...</h3>
+                            <p class="text-gray-600" id="statusMessage">Detecting plastic item...</p>
+                        </div>
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-recyfi-green"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success Display -->
+            <div id="successSection" class="hidden">
+                <div class="bg-gradient-to-r from-recyfi-green to-emerald-400 rounded-2xl shadow-xl p-8 text-white text-center">
+                    <div class="mb-4">
+                        <svg class="w-16 h-16 text-white mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2">WiFi Access Granted!</h3>
+                    <p class="text-lg mb-4">Enjoy 5 minutes of free internet</p>
+                    <div class="bg-white/20 rounded-lg p-4 mb-6">
+                        <p class="text-sm">Session ID: <span id="sessionId" class="font-mono">-</span></p>
+                        <p class="text-sm">MAC Address: <span id="userMac" class="font-mono">-</span></p>
+                    </div>
+                    <button onclick="goHome()" 
+                            class="bg-white text-recyfi-green font-semibold py-3 px-6 rounded-full hover:bg-gray-100 transition-colors">
+                        Back to Home
+                    </button>
+                </div>
+            </div>
+
+            <!-- Info Section -->
+            <div class="bg-white/80 rounded-xl p-6 text-center">
+                <h4 class="font-semibold text-recyfi-dark mb-3">How it works:</h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                    <div class="flex items-center justify-center space-x-2">
+                        <span class="text-recyfi-green font-bold">1.</span>
+                        <span>Insert plastic item</span>
+                    </div>
+                    <div class="flex items-center justify-center space-x-2">
+                        <span class="text-recyfi-green font-bold">2.</span>
+                        <span>System detects plastic</span>
+                    </div>
+                    <div class="flex items-center justify-center space-x-2">
+                        <span class="text-recyfi-green font-bold">3.</span>
+                        <span>Get 5 min WiFi</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Generate or get MAC address
+        function getMacAddress() {
+            let mac = localStorage.getItem('recyfi_mac');
+            if (!mac) {
+                mac = 'REC:' + Math.random().toString(36).substr(2, 9).toUpperCase();
+                localStorage.setItem('recyfi_mac', mac);
+            }
+            return mac;
+        }
+
+        // Simulate plastic deposit
+        async function simulateDeposit() {
+            const macAddress = getMacAddress();
+            
+            // Show status section
+            document.getElementById('statusSection').classList.remove('hidden');
+            document.getElementById('statusMessage').textContent = 'Processing plastic deposit...';
+            
+            try {
+                const response = await fetch('/api/bottle/deposit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        macAddress: macAddress
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Show success
+                    document.getElementById('statusSection').classList.add('hidden');
+                    document.getElementById('successSection').classList.remove('hidden');
+                    document.getElementById('sessionId').textContent = result.sessionId;
+                    document.getElementById('userMac').textContent = macAddress;
+                } else {
+                    throw new Error(result.error || 'Deposit failed');
+                }
+
+            } catch (error) {
+                document.getElementById('statusMessage').textContent = 'Error: ' + error.message;
+                setTimeout(() => {
+                    document.getElementById('statusSection').classList.add('hidden');
+                }, 3000);
+            }
+        }
+
+        // Navigation
+        function goHome() {
+            window.location.href = '/';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('RecyFi Deposit Page Ready');
+        });
+    </script>
+</body>
+</html>

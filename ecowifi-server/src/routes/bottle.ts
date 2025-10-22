@@ -3,18 +3,13 @@ import { db } from '../database';
 
 const app = new Hono();
 
-// Record bottle deposit and grant WiFi access
+// Record plastic deposit and grant WiFi access
 app.post('/deposit', async (c) => {
   try {
-    const { macAddress, weight, size } = await c.req.json();
+    const { macAddress } = await c.req.json();
 
-    // Validate bottle
-    if (weight < 10 || size < 5) {
-      return c.json({ error: 'Invalid bottle detected' }, 400);
-    }
-
-    // Log bottle deposit
-    const bottleLog = db.addBottleLog(weight, size, macAddress);
+    // Log plastic deposit
+    const bottleLog = db.addBottleLog(macAddress);
 
     // Check for existing active session
     const existingSession = db.findActiveUser(macAddress);
@@ -24,17 +19,17 @@ app.post('/deposit', async (c) => {
     if (existingSession) {
       // Extend existing session
       const success = db.extendUserSession(macAddress);
-      console.log(`📶 Extended session for ${macAddress}: ${existingSession.session_end} → +15 minutes`);
+      console.log(`📶 Extended session for ${macAddress}: ${existingSession.session_end} → +5 minutes`);
       sessionResult = { success };
     } else {
       // Create new session
       const newUser = db.createUser(macAddress);
-      console.log(`🆕 Created new session for ${macAddress}: 15 minutes`);
+      console.log(`🆕 Created new session for ${macAddress}: 5 minutes`);
       sessionResult = { success: true, userId: newUser.id };
     }
 
     // Update daily stats
-    db.updateTodayStats(1, 0, 0.082);
+    db.updateTodayStats(1, 0);
 
     // Grant WiFi access via Mikrotik API
     await grantWifiAccess(macAddress);
@@ -42,12 +37,12 @@ app.post('/deposit', async (c) => {
     return c.json({
       success: true,
       sessionId: bottleLog.id,
-      message: 'WiFi access granted for 15 minutes'
+      message: 'WiFi access granted for 5 minutes'
     });
 
   } catch (error) {
-    console.error('Bottle deposit error:', error);
-    return c.json({ error: 'Failed to process bottle deposit' }, 500);
+    console.error('Plastic deposit error:', error);
+    return c.json({ error: 'Failed to process plastic deposit' }, 500);
   }
 });
 
@@ -88,9 +83,9 @@ async function grantWifiAccess(macAddress: string) {
       },
       body: JSON.stringify({
         name: macAddress,
-        password: 'ecowifi2024',
-        profile: '15min-access',
-        comment: 'EcoWiFi bottle deposit'
+        password: 'recyfi2024',
+        profile: '5min-access',
+        comment: 'RecyFi plastic deposit'
       })
     });
 

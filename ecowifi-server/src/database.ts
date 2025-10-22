@@ -13,8 +13,6 @@ interface User {
 interface BottleLog {
   id: number;
   timestamp: string;
-  weight: number;
-  size: number;
   material_confirmed: boolean;
   mac_address: string;
 }
@@ -24,7 +22,6 @@ interface SystemStats {
   date: string;
   total_bottles: number;
   total_sessions: number;
-  co2_saved: number;
 }
 
 class InMemoryDatabase {
@@ -85,8 +82,7 @@ class InMemoryDatabase {
         id: this.nextSystemStatsId++,
         date: today,
         total_bottles: 0,
-        total_sessions: 0,
-        co2_saved: 0.0
+        total_sessions: 0
       });
       this.saveData();
     }
@@ -124,7 +120,7 @@ class InMemoryDatabase {
     const user = this.findActiveUser(macAddress);
     if (user) {
       const currentEnd = new Date(user.session_end);
-      user.session_end = new Date(currentEnd.getTime() + 15 * 60 * 1000).toISOString();
+      user.session_end = new Date(currentEnd.getTime() + 5 * 60 * 1000).toISOString();
       user.bottles_deposited++;
       this.saveData();
       return true;
@@ -164,12 +160,10 @@ class InMemoryDatabase {
   }
 
   // Bottle log operations
-  addBottleLog(weight: number, size: number, macAddress: string): BottleLog {
+  addBottleLog(macAddress: string): BottleLog {
     const log: BottleLog = {
       id: this.nextBottleLogId++,
       timestamp: new Date().toISOString(),
-      weight,
-      size,
       material_confirmed: false,
       mac_address: macAddress
     };
@@ -200,7 +194,7 @@ class InMemoryDatabase {
   }
 
   // System stats operations
-  updateTodayStats(bottlesAdded: number = 1, sessionsAdded: number = 0, co2Added: number = 0.082): void {
+  updateTodayStats(bottlesAdded: number = 1, sessionsAdded: number = 0): void {
     const today = new Date().toISOString().split('T')[0];
     let stats = this.systemStats.find(s => s.date === today);
     
@@ -209,15 +203,13 @@ class InMemoryDatabase {
         id: this.nextSystemStatsId++,
         date: today,
         total_bottles: 0,
-        total_sessions: 0,
-        co2_saved: 0.0
+        total_sessions: 0
       };
       this.systemStats.push(stats);
     }
     
     stats.total_bottles += bottlesAdded;
     stats.total_sessions += sessionsAdded;
-    stats.co2_saved += co2Added;
     this.saveData();
   }
 

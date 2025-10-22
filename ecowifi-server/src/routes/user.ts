@@ -32,7 +32,7 @@ app.post('/extend', async (c) => {
       return c.json({ error: 'User not found or session expired' }, 404);
     }
 
-    return c.json({ success: true, message: 'Session extended by 15 minutes' });
+    return c.json({ success: true, message: 'Session extended by 5 minutes' });
   } catch (error) {
     console.error('Session extend error:', error);
     return c.json({ error: 'Failed to extend session' }, 500);

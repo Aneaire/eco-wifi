@@ -6,7 +6,7 @@ const app = new Hono();
 // Get system statistics dashboard
 app.get('/dashboard', async (c) => {
   try {
-    const today = db.getTodayStats() || { total_bottles: 0, total_sessions: 0, co2_saved: 0 };
+    const today = db.getTodayStats() || { total_bottles: 0, total_sessions: 0 };
     const totalBottles = db.getTotalBottleCount();
     const activeSessions = db.getActiveUsers().length;
     const totalUsers = db.getDistinctUserCount();
