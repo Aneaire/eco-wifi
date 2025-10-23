@@ -1,6 +1,6 @@
 import { eq, and, gte, lte, desc, count } from 'drizzle-orm';
 import { db, schema } from './db.js';
-import type { User, NewUser, Bottle, NewBottle, Stats, NewStats } from './schema.js';
+import type { User, NewUser, Bottle, NewBottle, Stats, NewStats } from '../../src/schema.js';
 
 export class DatabaseService {
   // User operations
@@ -185,6 +185,4 @@ export class DatabaseService {
   }
 }
 
-// Export singleton instance
 export const databaseService = new DatabaseService();
-export type { User, Bottle, Stats };

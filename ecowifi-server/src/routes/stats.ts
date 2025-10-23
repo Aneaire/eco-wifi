@@ -1,15 +1,15 @@
 import { Hono } from 'hono';
-import { db } from '../database';
+import { databaseService } from '../database.js';
 
 const app = new Hono();
 
 // Get system statistics dashboard
 app.get('/dashboard', async (c) => {
   try {
-    const today = db.getTodayStats() || { total_bottles: 0, total_sessions: 0 };
-    const totalBottles = db.getTotalBottleCount();
-    const activeSessions = db.getActiveUsers().length;
-    const totalUsers = db.getDistinctUserCount();
+    const today = await databaseService.getTodayStats() || { totalBottles: 0, totalSessions: 0 };
+    const totalBottles = await databaseService.getTotalBottleCount();
+    const activeSessions = (await databaseService.getActiveUsers()).length;
+    const totalUsers = await databaseService.getDistinctUserCount();
 
     return c.json({
       today,
@@ -27,7 +27,7 @@ app.get('/dashboard', async (c) => {
 app.get('/history/:days', async (c) => {
   try {
     const days = parseInt(c.req.param('days')) || 7;
-    const history = db.getStatsHistory(days);
+    const history = await databaseService.getStatsHistory(days);
     return c.json(history);
   } catch (error) {
     console.error('History fetch error:', error);
@@ -38,9 +38,9 @@ app.get('/history/:days', async (c) => {
 // Get real-time metrics
 app.get('/realtime', async (c) => {
   try {
-    const bottlesLastHour = db.getBottlesInLastHour();
-    const activeNow = db.getActiveUsers().length;
-    const todayTotal = db.getTodayTotalBottles();
+    const bottlesLastHour = await databaseService.getBottlesInLastHour();
+    const activeNow = (await databaseService.getActiveUsers()).length;
+    const todayTotal = await databaseService.getTodayTotalBottles();
 
     return c.json({
       bottlesLastHour,
@@ -57,7 +57,7 @@ app.get('/realtime', async (c) => {
 // Reset daily stats (for testing)
 app.post('/reset-today', async (c) => {
   try {
-    db.resetTodayStats();
+    await databaseService.resetTodayStats();
     return c.json({ success: true, message: 'Today\'s stats reset' });
   } catch (error) {
     console.error('Reset stats error:', error);

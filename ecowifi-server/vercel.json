@@ -1,0 +1,55 @@
+{
+  "version": 2,
+  "buildCommand": "bun run setup-database.ts",
+  "outputDirectory": "public",
+  "installCommand": "bun install",
+  "framework": null,
+  "builds": [
+    {
+      "src": "api/**/*.ts",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "public/**/*",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/deposit.html",
+      "dest": "/public/deposit.html"
+    },
+    {
+      "src": "/",
+      "dest": "/public/index.html"
+    },
+    {
+      "src": "/(.*\\.(js|css|png|jpg|gif|ico|svg))",
+      "dest": "/public/$1"
+    }
+  ],
+  "env": {
+    "TURSO_URL": "@turso-url",
+    "TURSO_TOKEN": "@turso-token",
+    "MIKROTIK_HOST": "10.56.13.214",
+    "MIKROTIK_USER": "admin",
+    "MIKROTIK_PASS": "@mikrotik-pass",
+    "MIKROTIK_PROFILE": "5min-access"
+  },
+  "functions": {
+    "api/**/*.ts": {
+      "maxDuration": 10,
+      "runtime": "nodejs18.x"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    }
+  ]
+}

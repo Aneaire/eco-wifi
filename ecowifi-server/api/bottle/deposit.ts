@@ -1,12 +1,13 @@
-import { Hono } from 'hono';
-import { databaseService } from '../database.js';
+import { NextRequest, NextResponse } from 'next/server';
+import { databaseService } from '../_lib/database-service.js';
 
-const app = new Hono();
-
-// Record plastic deposit and grant WiFi access
-app.post('/deposit', async (c) => {
+export async function POST(request: NextRequest) {
   try {
-    const { macAddress } = await c.req.json();
+    const { macAddress } = await request.json();
+
+    if (!macAddress) {
+      return NextResponse.json({ error: 'MAC address is required' }, { status: 400 });
+    }
 
     // Log plastic deposit
     const bottleLog = await databaseService.addBottleLog(macAddress);
@@ -31,7 +32,7 @@ app.post('/deposit', async (c) => {
     // Grant WiFi access via Mikrotik API
     await grantWifiAccess(macAddress);
 
-    return c.json({
+    return NextResponse.json({
       success: true,
       sessionId: bottleLog.id,
       message: 'WiFi access granted for 5 minutes'
@@ -39,34 +40,12 @@ app.post('/deposit', async (c) => {
 
   } catch (error) {
     console.error('Plastic deposit error:', error);
-    return c.json({ error: 'Failed to process plastic deposit' }, 500);
+    return NextResponse.json({ error: 'Failed to process plastic deposit' }, { status: 500 });
   }
-});
-
-// Get bottle history
-app.get('/history', async (c) => {
-  try {
-    const history = await databaseService.getBottleHistory(100);
-    return c.json(history);
-  } catch (error) {
-    console.error('History fetch error:', error);
-    return c.json({ error: 'Failed to fetch history' }, 500);
-  }
-});
-
-// Get bottle status for polling
-app.get('/status', async (c) => {
-  try {
-    const count = await databaseService.getRecentBottleCount(30);
-    return c.json({ bottleDetected: count > 0 });
-  } catch (error) {
-    console.error('Status fetch error:', error);
-    return c.json({ error: 'Failed to fetch status' }, 500);
-  }
-});
+}
 
 async function grantWifiAccess(macAddress: string) {
-  // Mikrotik SSH implementation - working method
+  // Mikrotik SSH implementation
   console.log(`📶 Granting WiFi access to MAC: ${macAddress}`);
   
   try {
@@ -91,5 +70,3 @@ async function grantWifiAccess(macAddress: string) {
     return false;
   }
 }
-
-export { app as bottleRoutes };

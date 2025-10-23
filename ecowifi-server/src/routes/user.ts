@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { db } from '../database';
+import { databaseService } from '../database.js';
 
 const app = new Hono();
 
@@ -8,7 +8,7 @@ app.get('/session/:macAddress', async (c) => {
   try {
     const macAddress = c.req.param('macAddress');
 
-    const user = db.findActiveUser(macAddress);
+    const user = await databaseService.findActiveUser(macAddress);
 
     if (!user) {
       return c.json({ error: 'No active session found' }, 404);
@@ -26,7 +26,7 @@ app.post('/extend', async (c) => {
   try {
     const { macAddress } = await c.req.json();
 
-    const success = db.extendUserSession(macAddress);
+    const success = await databaseService.extendUserSession(macAddress);
 
     if (!success) {
       return c.json({ error: 'User not found or session expired' }, 404);
@@ -42,26 +42,30 @@ app.post('/extend', async (c) => {
 // Get all active sessions
 app.get('/active', async (c) => {
   try {
-    const activeUsers = db.getActiveUsers()
-      .sort((a, b) => new Date(b.session_end).getTime() - new Date(a.session_end).getTime())
-      .map(({ mac_address, session_start, session_end, bottles_deposited }) => ({
-        mac_address,
-        session_start,
-        session_end,
-        bottles_deposited
+    const activeUsers = await databaseService.getActiveUsers();
+    
+    const sortedUsers = activeUsers
+      .sort((a, b) => new Date(b.sessionEnd).getTime() - new Date(a.sessionEnd).getTime())
+      .map(({ macAddress, sessionStart, sessionEnd, bottlesDeposited }) => ({
+        mac_address: macAddress,
+        session_start: sessionStart,
+        session_end: sessionEnd,
+        bottles_deposited: bottlesDeposited
       }));
-    return c.json(activeUsers);
+    
+    return c.json(sortedUsers);
   } catch (error) {
     console.error('Active users fetch error:', error);
     return c.json({ error: 'Failed to fetch active users' }, 500);
   }
 });
 
-// Expire old sessions (cleanup)
+// Expire old sessions (cleanup) - Note: This is now handled automatically by queries
 app.post('/cleanup', async (c) => {
   try {
-    const expiredCount = db.cleanupExpiredSessions();
-    return c.json({ expired: expiredCount });
+    // In the new architecture, expired sessions are filtered out by queries
+    // This endpoint is kept for compatibility but doesn't need to do anything
+    return c.json({ expired: 0, message: 'Cleanup handled automatically by queries' });
   } catch (error) {
     console.error('Cleanup error:', error);
     return c.json({ error: 'Failed to cleanup sessions' }, 500);

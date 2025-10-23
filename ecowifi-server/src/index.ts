@@ -1,25 +1,20 @@
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { cors } from 'hono/cors';
-import { serveStatic } from '@hono/node-server/serve-static';
 
-// Import routes and database
-import { bottleRoutes } from './routes/bottle';
-import { userRoutes } from './routes/user';
-import { statsRoutes } from './routes/stats';
-import { db } from './database';
-
-// Initialize in-memory database
-console.log('In-memory database initialized');
+// Import routes
+import { bottleRoutes } from './routes/bottle.js';
+import { userRoutes } from './routes/user.js';
+import { statsRoutes } from './routes/stats.js';
 
 const app = new Hono();
 
-// Middleware
-app.use('/*', cors());
-app.use('/static/*', serveStatic({ root: './public' }));
-app.use('/image/*', serveStatic({ root: './' }));
-app.use('/deposit.html', serveStatic({ root: './public' }));
-app.use('/', serveStatic({ root: './public', rewriteRequestPath: (path) => path === '/' ? '/index.html' : path }));
+// Middleware - CORS configured for Mikrotik access
+app.use('/*', cors({
+  origin: '*', // Allow all origins for Mikrotik hotspot access
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
+}));
 
 // Routes
 app.route('/api/bottle', bottleRoutes);
@@ -39,14 +34,21 @@ app.get('/portal', (c) => {
 
 // Health check endpoint
 app.get('/health', (c) => {
-  return c.json({ status: 'ok', timestamp: new Date().toISOString() });
+  return c.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    version: '2.0.0',
+    architecture: 'hybrid-mikrotik-render'
+  });
 });
 
-const port = 9999;
+const port = parseInt(process.env.PORT || '3000');
 
 serve({
   fetch: app.fetch,
   port,
 });
 
-console.log(`🚀 RecyFi server is running on port ${port}`);
+console.log(`🚀 RecyFi API server is running on port ${port}`);
+console.log(`📊 Architecture: Hybrid (Mikrotik frontend + Render backend)`);
+console.log(`🗄️  Database: Turso SQLite with Drizzle ORM`);

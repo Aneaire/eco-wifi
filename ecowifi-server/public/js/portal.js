@@ -8,6 +8,11 @@ class EcoWiFiPortal {
     this.bottleCountElement = document.getElementById('bottle-count');
     this.co2SavedElement = document.getElementById('co2-saved');
 
+    // API Configuration - Update this for production
+    this.apiBaseUrl = window.location.hostname === '10.56.13.1' 
+      ? 'https://recyfi.vercel.app'    // Production: Mikrotik hotspot
+      : 'http://localhost:3000';        // Development: local server
+
     this.macAddress = this.getMacAddress();
     this.pollingInterval = null;
     this.timerInterval = null;
@@ -17,6 +22,7 @@ class EcoWiFiPortal {
 
   init() {
     console.log('🚀 EcoWiFi Portal initialized');
+    console.log(`📡 API Base URL: ${this.apiBaseUrl}`);
     this.checkSession();
     this.startPolling();
     this.updateEnvironmentalStats();
@@ -36,7 +42,7 @@ class EcoWiFiPortal {
 
   async checkSession() {
     try {
-      const response = await fetch(`/api/user/session/${this.macAddress}`);
+      const response = await fetch(`${this.apiBaseUrl}/api/user/session/${this.macAddress}`);
       const data = await response.json();
 
       if (response.ok) {
@@ -58,7 +64,7 @@ class EcoWiFiPortal {
 
   async checkBottleStatus() {
     try {
-      const response = await fetch('/api/bottle/status');
+      const response = await fetch(`${this.apiBaseUrl}/api/bottle/status`);
       const data = await response.json();
 
       if (data.bottleDetected) {
@@ -74,7 +80,7 @@ class EcoWiFiPortal {
       this.updateStatus('Processing bottle...', 'yellow');
       clearInterval(this.pollingInterval); // Stop polling during processing
 
-      const response = await fetch('/api/bottle/deposit', {
+      const response = await fetch(`${this.apiBaseUrl}/api/bottle/deposit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -146,7 +152,7 @@ class EcoWiFiPortal {
   }
 
   showActiveSession(data) {
-    const remaining = Math.max(0, Math.floor((new Date(data.session_end) - new Date()) / 1000));
+    const remaining = Math.max(0, Math.floor((new Date(data.sessionEnd) - new Date()) / 1000));
     if (remaining > 0) {
       this.updateStatus(`Active session: ${Math.floor(remaining / 60)} minutes remaining`, 'green');
       this.startTimer(remaining);
@@ -167,7 +173,7 @@ class EcoWiFiPortal {
 
   async updateEnvironmentalStats() {
     try {
-      const response = await fetch('/api/stats/dashboard');
+      const response = await fetch(`${this.apiBaseUrl}/api/stats/dashboard`);
       const data = await response.json();
 
       if (response.ok) {

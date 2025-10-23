@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: recyfi-api
+    env: node
+    plan: free
+    buildCommand: bun install && bun run build
+    startCommand: bun run start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: TURSO_URL
+        sync: false
+      - key: TURSO_TOKEN
+        sync: false
+      - key: MIKROTIK_HOST
+        value: 10.56.13.214
+      - key: MIKROTIK_USER
+        value: admin
+      - key: MIKROTIK_PASS
+        sync: false
+      - key: MIKROTIK_PROFILE
+        value: 5min-access
