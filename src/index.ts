@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
+import { serveStatic } from '@hono/node-server/serve-static';
 import { cors } from 'hono/cors';
 
 // Import routes
@@ -15,6 +16,9 @@ app.use('/*', cors({
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
 }));
+
+// Serve static files from public directory
+app.use('/*', serveStatic({ root: './public' }));
 
 // Routes
 app.route('/api/bottle', bottleRoutes);
