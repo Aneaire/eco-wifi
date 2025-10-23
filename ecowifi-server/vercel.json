@@ -1,7 +1,5 @@
 {
   "version": 2,
-  "rootDirectory": "ecowifi-server",
-  "installCommand": "bun install",
   "buildCommand": "bun run setup-database.ts",
   "outputDirectory": "public",
   "framework": null,
